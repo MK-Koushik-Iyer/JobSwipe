@@ -272,23 +272,32 @@
         const cardTitle = document.getElementById('cardTitle');
         const toggleSlider = document.querySelector('.toggle-slider');
 
+        // Check for saved theme in localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark');
+        }
+
         themeToggle.addEventListener('click', () => {
             body.classList.toggle('dark');
-            themeToggle.innerHTML = body.classList.contains('dark') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            if (body.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
         });
 
         jobSeekerBtn.addEventListener('click', () => {
             jobSeekerBtn.classList.add('active');
             hirerBtn.classList.remove('active');
-            cardTitle.textContent = 'Login in to JobSwipe';
             toggleSlider.style.transform = 'translateX(0)';
+            cardTitle.textContent = 'Login in to JobSwipe';
         });
 
         hirerBtn.addEventListener('click', () => {
             hirerBtn.classList.add('active');
             jobSeekerBtn.classList.remove('active');
-            cardTitle.textContent = 'Login in to JobSwipe as a Hirer';
             toggleSlider.style.transform = 'translateX(100%)';
+            cardTitle.textContent = 'Login in to JobSwipe';
         });
     </script>
 </body>
