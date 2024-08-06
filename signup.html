@@ -15,6 +15,7 @@
       background: linear-gradient(135deg, #ffefd5 0%, #ffb84d 100%);
       margin: 0;
       transition: background 0.5s;
+      overflow-y: auto;
     }
     .card {
       background-color: white;
@@ -22,40 +23,43 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
       max-width: 400px;
       width: 100%;
-      padding: 30px;
+      padding: 20px;
       box-sizing: border-box;
       text-align: center;
       transition: background 0.5s, color 0.5s;
     }
     .card-header {
-      margin-bottom: 20px;
+      margin-top: 20px;
+      margin-bottom: 20px; /* Increased margin to add space above the title */
     }
     .card-title {
-      font-size: 28px;
+      font-size: 24px;
       font-weight: bold;
       margin-bottom: 10px;
     }
     .grid {
       display: grid;
-      gap: 16px;
+      gap: 12px;
     }
     .input-group {
       display: flex;
       flex-direction: column;
     }
     label {
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       font-size: 14px;
       font-weight: 500;
       text-align: left;
     }
     input {
-      padding: 12px;
+      padding: 8px;
       border: 1px solid #ccc;
-      border-radius: 25px;
-      font-size: 16px;
+      border-radius: 20px;
+      font-size: 14px;
       outline: none;
       transition: border-color 0.3s;
+      width: calc(100% - 16px);
+      box-sizing: border-box;
     }
     input:focus {
       border-color: #ff9933;
@@ -63,12 +67,12 @@
     .button {
       display: block;
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       background: linear-gradient(90deg, #ffa500, #ff4500);
       color: white;
       border: none;
       border-radius: 25px;
-      font-size: 18px;
+      font-size: 16px;
       cursor: pointer;
       text-align: center;
       transition: background 0.3s;
@@ -80,7 +84,7 @@
       display: flex;
       align-items: center;
       text-align: center;
-      margin: 20px 0;
+      margin: 15px 0;
     }
     .separator::before, .separator::after {
       content: '';
@@ -96,10 +100,10 @@
     .social-login {
       display: flex;
       justify-content: space-around;
-      margin-top: 20px;
+      margin-top: 15px;
     }
     .social-login a {
-      font-size: 24px;
+      font-size: 24px; /* Increased font size for larger icons */
       color: #ff4500;
       text-decoration: none;
       transition: transform 0.3s;
@@ -136,58 +140,94 @@
     body.dark .separator::before, body.dark .separator::after {
       border-bottom: 1px solid #444;
     }
-
     /* Role toggle styles */
     .role-toggle {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      padding: 5px;
+      position: relative;
+      width: 100%;
       border-radius: 25px;
       background-color: #f0f0f0;
-      position: relative;
-      transition: background-color 0.3s;
-      border: 1px solid #ff4500;
+      border: 2px solid #ff4500; /* Overall border effect */
+      overflow: hidden;
     }
+
     .role-toggle .toggle-btn {
       flex: 1;
       padding: 10px;
-      border: none;
+      border: none; /* Remove individual borders from buttons */
       border-radius: 25px;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
       background-color: transparent;
       color: #ff4500;
-      transition: color 0.3s;
+      transition: color 0.3s, background-color 0.3s;
       position: relative;
       z-index: 1;
+      text-align: center;
     }
+
     .role-toggle .toggle-btn.active {
       color: white;
+      background-color: #ff4500;
+      border: 2px solid #ff4500; /* Border for the active button */
     }
+
     .toggle-slider {
       position: absolute;
-      top: 4px;
-      bottom: 4px;
-      width: calc(50% - 8px);
+      top: 0;
+      bottom: 0;
+      width: 50%;
       background-color: #ff4500;
       border-radius: 25px;
-      transition: transform 0.3s;
+      transition: transform 0.3s ease;
       z-index: 0;
+    }
+
+    .role-toggle .toggle-btn:first-child.active ~ .toggle-slider {
+      transform: translateX(0);
+    }
+
+    .role-toggle .toggle-btn:last-child.active ~ .toggle-slider {
+      transform: translateX(100%);
     }
 
     /* Dark mode styles for role toggle */
     body.dark .role-toggle {
       background-color: #333;
+      border-color: #ff4500;
     }
+
     body.dark .toggle-slider {
       background-color: #ff4500;
     }
+
     body.dark .role-toggle .toggle-btn {
       color: #f5f5f5;
     }
+
     body.dark .role-toggle .toggle-btn.active {
       color: #121212;
+      border-color: #ff4500;
+    }
+
+    /* Adjust layout for input fields */
+    .input-row {
+      display: flex;
+      gap: 12px;
+    }
+    .input-group {
+      flex: 1;
+    }
+
+    /* Link styling */
+    .link {
+      color: #ff4500;
+      text-decoration: none;
+      margin-top: 10px;
+      display: inline-block;
+    }
+    .link:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -204,7 +244,7 @@
     </div>
     <div class="card-content">
       <div class="grid gap-4">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="input-row">
           <div class="input-group">
             <label for="first-name">First name</label>
             <input id="first-name" type="text" placeholder="Max" required>
@@ -237,23 +277,23 @@
     </div>
   </div>
   <script>
+    // Theme toggle functionality
     const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+    });
+
+    // Role toggle functionality
     const jobSeekerBtn = document.getElementById('jobSeekerBtn');
     const hirerBtn = document.getElementById('hirerBtn');
     const toggleSlider = document.querySelector('.toggle-slider');
-
-    themeToggle.addEventListener('click', () => {
-      body.classList.toggle('dark');
-      themeToggle.innerHTML = body.classList.contains('dark') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    });
-
+    
     jobSeekerBtn.addEventListener('click', () => {
       jobSeekerBtn.classList.add('active');
       hirerBtn.classList.remove('active');
       toggleSlider.style.transform = 'translateX(0)';
     });
-
+    
     hirerBtn.addEventListener('click', () => {
       hirerBtn.classList.add('active');
       jobSeekerBtn.classList.remove('active');

@@ -28,6 +28,7 @@
             transition: background 0.5s, color 0.5s;
         }
         .card-header {
+            margin-top: 20px;
             margin-bottom: 20px;
         }
         .card-title {
@@ -155,58 +156,74 @@
         }
 
         /* Role toggle styles */
-        .role-toggle {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding: 5px;
-            border-radius: 25px;
-            background-color: #f0f0f0;
-            position: relative;
-            transition: background-color 0.3s;
-            border: 1px solid #ff4500;
-        }
-        .role-toggle .toggle-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: transparent;
-            color: #ff4500;
-            transition: color 0.3s;
-            position: relative;
-            z-index: 1;
-        }
-        .role-toggle .toggle-btn.active {
-            color: white;
-        }
-        .toggle-slider {
-            position: absolute;
-            top: 4px;
-            bottom: 4px;
-            left: 4px;
-            width: calc(50% - 8px);
-            background-color: #ff4500;
-            border-radius: 25px;
-            transition: transform 0.3s;
-            z-index: 0;
-        }
+    .role-toggle {
+      display: flex;
+      position: relative;
+      width: 100%;
+      border-radius: 25px;
+      background-color: #f0f0f0;
+      border: 2px solid #ff4500; /* Overall border effect */
+      overflow: hidden;
+    }
 
-        /* Dark mode styles for role toggle */
-        body.dark .role-toggle {
-            background-color: #333;
-        }
-        body.dark .toggle-slider {
-            background-color: #ff4500;
-        }
-        body.dark .role-toggle .toggle-btn {
-            color: #f5f5f5;
-        }
-        body.dark .role-toggle .toggle-btn.active {
-            color: #121212;
-        }
+    .role-toggle .toggle-btn {
+      flex: 1;
+      padding: 10px;
+      border: none; /* Remove individual borders from buttons */
+      border-radius: 25px;
+      font-size: 14px;
+      cursor: pointer;
+      background-color: transparent;
+      color: #ff4500;
+      transition: color 0.3s, background-color 0.3s;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .role-toggle .toggle-btn.active {
+      color: white;
+      background-color: #ff4500;
+      border: 2px solid #ff4500; /* Border for the active button */
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      background-color: #ff4500;
+      border-radius: 25px;
+      transition: transform 0.3s ease;
+      z-index: 0;
+    }
+
+    .role-toggle .toggle-btn:first-child.active ~ .toggle-slider {
+      transform: translateX(0);
+    }
+
+    .role-toggle .toggle-btn:last-child.active ~ .toggle-slider {
+      transform: translateX(100%);
+    }
+
+    /* Dark mode styles for role toggle */
+    body.dark .role-toggle {
+      background-color: #333;
+      border-color: #ff4500;
+    }
+
+    body.dark .toggle-slider {
+      background-color: #ff4500;
+    }
+
+    body.dark .role-toggle .toggle-btn {
+      color: #f5f5f5;
+    }
+
+    body.dark .role-toggle .toggle-btn.active {
+      color: #121212;
+      border-color: #ff4500;
+    }
     </style>
 </head>
 <body>
@@ -240,7 +257,7 @@
                 <a href="#"><i class="fas fa-phone"></i></a>
             </div>
             <div class="forgot-password">
-                <a href="#" class="link">Forgot your password?</a>
+                <a href="forgot-password.html" class="link">Forgot your password?</a>
             </div>
             <div class="mt-4 text-center text-sm">
                 Don't have an account? <a href="signup.html" class="link">Sign up</a>
