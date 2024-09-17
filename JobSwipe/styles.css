@@ -1,0 +1,237 @@
+/* Global Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.app-container {
+    width: 350px;
+    text-align: center;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+}
+
+/* Job Card Styles */
+.job-card-container {
+    position: relative;
+    width: 88%;
+    height: 500px;
+    perspective: 1000px;
+    overflow: visible; /* Ensure that swipe indicators can be shown outside the card */
+}
+
+.job-card {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow: visible; /* Make sure the swipe indicators can overflow the card */
+    justify-content: space-evenly;
+}
+
+.job-card img {
+    /* width: 120px;
+    height: 120px;  */
+    max-height: 80%;
+    max-width: 80%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    align-self: center; /* Center the logo horizontally */
+}
+
+
+.job-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px; /* Reduced space */
+}
+
+.company-name {
+    font-size: 16px;
+    color: #777;
+    margin-bottom: 10px; /* Increased space */
+}
+
+.job-description {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px; /* Increased space */
+}
+
+.job-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px; /* Space between tags */
+    margin-bottom: 20px; /* Increased space below details */
+}
+
+.job-tag {
+    background-color: #e0e0e0;
+    color: #333;
+    border-radius: 15px;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-block;
+    text-align: center;
+}
+
+.job-salary {
+    background-color: #d0f4c0; /* Light green */
+    border: 1px solid #b2df9f;
+}
+
+.job-duration {
+    background-color: #c1e4ff; /* Light blue */
+    border: 1px solid #a1c4f5;
+}
+
+.job-skills {
+    background-color: #ffd8d8; /* Light red */
+    border: 1px solid #f5a1a1;
+}
+
+.swipe-indicator {
+    position: absolute;
+    top: 50%;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    transform: translateY(-50%);
+    z-index: 1; /* Ensure that indicators appear on top of the card */
+}
+
+.swipe-indicator.like {
+    left: -50px; /* Move to the left outside the card */
+    color: #4caf50;
+    border: 3px solid #4caf50;
+}
+
+.swipe-indicator.dislike {
+    right: -50px; /* Move to the right outside the card */
+    color: #f44336;
+    border: 3px solid #f44336;
+}
+
+/* Action Buttons Styles */
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 60px; /* Reduced space above action buttons */
+}
+
+.swipe-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.swipe-btn i {
+    color: #fff;
+    font-size: 24px;
+    transition: color 0.2s;
+}
+
+.swipe-btn:active {
+    transform: scale(0.9);
+}
+
+/* Accept Button Styles */
+.accept-btn {
+    background-color: #4caf50; /* Green background */
+    border: 2px solid #4caf50;
+}
+
+.accept-btn:hover {
+    background-color: #43a047; /* Darker green on hover */
+    border: 2px solid #43a047;
+}
+
+/* Reject Button Styles */
+.reject-btn {
+    background-color: #f44336; /* Red background */
+    border: 2px solid #f44336;
+}
+
+.reject-btn:hover {
+    background-color: #e53935; /* Darker red on hover */
+    border: 2px solid #e53935;
+}
+
+/* Responsive Design */
+@media (max-width: 400px) {
+    .app-container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .job-card {
+        padding: 15px;
+    }
+
+    .job-title {
+        font-size: 18px;
+    }
+
+    .company-name {
+        font-size: 14px;
+    }
+
+    .job-description {
+        font-size: 13px;
+    }
+
+    .job-tag {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    .swipe-indicator.like,
+    .swipe-indicator.dislike {
+        width: 80px;
+        height: 80px;
+        font-size: 20px;
+    }
+}
