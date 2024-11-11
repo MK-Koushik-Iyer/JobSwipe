@@ -1,2 +1,0 @@
-# JobSwipe
-JobSwipe is an innovative job-matching platform that brings a fresh, interactive approach to the job search and recruitment process. Inspired by the simplicity and engagement of popular social apps, JobSwipe offers a "Tinder-like" experience for both job seekers and recruiters. This project aims to streamline and enhance the job matching process through a user-friendly interface where users can quickly swipe left or right to indicate their interest.
