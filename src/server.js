@@ -166,7 +166,7 @@
       if (role === 'hirer') {
         res.redirect('/signuphirer'); // Redirect to the Hirer setup page
       } else {
-        res.redirect('/signupseeker'); // Redirect to the Seeker setup page
+        res.redirect('/profilesetupseeker'); // Redirect to the Seeker setup page
       }
 
     } catch (error) {
