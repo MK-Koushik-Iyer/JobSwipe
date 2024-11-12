@@ -51,14 +51,6 @@ const userSchema = new mongoose.Schema({
   lastActive: {
     type: Date
   },
-  // Common profile fields
-  phone: String,
-  location: {
-    city: String,
-    state: String,
-    country: String
-  },
-  profilePicture: String,
   // Role-specific fields
   hirerProfile: {
     companyName: String,
@@ -76,8 +68,6 @@ const userSchema = new mongoose.Schema({
       institution: String,
       year: Number
     }],
-    resume: String,
-    preferredLocations: [String],
     expectedSalary: {
       min: Number,
       max: Number,
@@ -137,10 +127,6 @@ const jobPostingSchema = new mongoose.Schema({
     currency: String
   },
   skills: [String],
-  experience: {
-    min: Number,
-    max: Number
-  },
   status: {
     type: String,
     enum: ['active', 'closed', 'draft'],
