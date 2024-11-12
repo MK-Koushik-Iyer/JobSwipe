@@ -118,8 +118,7 @@
       </form>
     </div>
 
-    <script>
-      // Get DOM elements
+<script>
 // Get DOM elements
 const themeToggle = document.getElementById('themeToggle');
 const jobSeekerBtn = document.getElementById('jobSeekerBtn');
@@ -127,11 +126,11 @@ const hirerBtn = document.getElementById('hirerBtn');
 const cardTitle = document.getElementById('cardTitle');
 const roleInput = document.getElementById('role');
 const toggleSlider = document.querySelector('.toggle-slider');
+const signupForm = document.getElementById('signupForm');
 const body = document.body;
 
 // Theme Toggle Functionality
 function initializeTheme() {
-    // Check for saved theme preference
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         body.classList.add('dark');
@@ -142,20 +141,13 @@ function initializeTheme() {
 
 function toggleTheme() {
     body.classList.toggle('dark');
-    const isDark = body.classList.contains('dark');
-    
-    // Toggle icon
     const icon = themeToggle.querySelector('i');
-    if (isDark) {
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
+    if (body.classList.contains('dark')) {
+        icon.classList.replace('fa-moon', 'fa-sun');
     } else {
-        icon.classList.remove('fa-sun');
-        icon.classList.add('fa-moon');
+        icon.classList.replace('fa-sun', 'fa-moon');
     }
-    
-    // Save preference
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
 }
 
 // Role Toggle Functionality
@@ -164,63 +156,47 @@ function toggleRole(role) {
         jobSeekerBtn.classList.add('active');
         hirerBtn.classList.remove('active');
         roleInput.value = 'seeker';
-        cardTitle.innerText = 'SignUp to JobSwipe';
         toggleSlider.style.transform = 'translateX(0)';
     } else {
         hirerBtn.classList.add('active');
         jobSeekerBtn.classList.remove('active');
         roleInput.value = 'hirer';
-        cardTitle.innerText = 'SignUp to JobSwipe';
         toggleSlider.style.transform = 'translateX(100%)';
     }
-
-    // Send role update to server
-    fetch('/toggle-role', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ role })
-    })
-    .then(res => res.json())
-    .then(data => console.log('Role updated:', data))
-    .catch(err => console.error('Error updating role:', err));
 }
 
 // Form submission handling
-function handleFormSubmit(e) {
-    e.preventDefault();
-    console.log(`Submitting login form with role: ${roleInput.value}`);
+signupForm.addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevent default form submission
 
-    const formData = new FormData(e.target);
+    // Determine redirect page based on role
+    const role = roleInput.value;
+    const redirectUrl = role === 'seeker' ? '/profilesetupseeker' : '/signuphirer';
 
-    fetch('/loginpage', {
+    // Redirect after signup processing
+    fetch('/signup', {
         method: 'POST',
-        body: formData,
+        body: new FormData(signupForm),
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Login failed');
+        if (response.ok) {
+            window.location.href = redirectUrl;
+        } else {
+            alert('Signup failed. Please try again.');
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Login successful:', data);
-        // Redirect to dashboard or appropriate page
-        window.location.href = '/dashboard'; // Adjust this URL as needed
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Invalid credentials. Please try again.');
+        alert('An error occurred. Please try again.');
     });
-}
+});
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', initializeTheme);
 themeToggle.addEventListener('click', toggleTheme);
 jobSeekerBtn.addEventListener('click', () => toggleRole('seeker'));
 hirerBtn.addEventListener('click', () => toggleRole('hirer'));
-document.getElementById('loginForm').addEventListener('submit', handleFormSubmit);
-    </script>
+</script>
+
   </body>
 </html>

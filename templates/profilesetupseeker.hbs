@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seeker Profile Setup</title>
+    <style>
+        /* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #ffefd5 0%, #ffb84d 100%);
+    margin: 0;
+    transition: background 0.5s;
+}
+
+.container {
+    max-width: 600px;
+    width: 100%;
+    background-color: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    transition: background 0.5s, color 0.5s;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+input[type="text"],
+textarea,
+input[type="file"] {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+input[type="file"]:focus {
+    border-color: #ff9933;
+    outline: none;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[type="file"] {
+    padding: 10px;
+}
+
+button {
+    padding: 12px;
+    background: linear-gradient(90deg, #ffa500, #ff4500);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 18px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: linear-gradient(90deg, #ff8c00, #ff6347);
+}
+
+/* Small Text for Photo Upload */
+small {
+    color: #666;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Separator */
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.separator::before,
+.separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.separator::before {
+    margin-right: .25em;
+}
+
+.separator::after {
+    margin-left: .25em;
+}
+
+/* Dark Mode Styles */
+body.dark {
+    background: #121212;
+}
+
+body.dark .container {
+    background-color: #1f1f1f;
+    color: #f5f5f5;
+}
+
+body.dark input,
+body.dark textarea {
+    background-color: #333;
+    color: #f5f5f5;
+    border: 1px solid #444;
+}
+
+body.dark button {
+    background: linear-gradient(90deg, #ff8c00, #ff6347);
+}
+
+body.dark .separator::before,
+body.dark .separator::after {
+    border-bottom: 1px solid #444;
+}
+
+/* Role Toggle (Hirer / Seeker) */
+.role-toggle {
+    display: flex;
+    position: relative;
+    width: 100%;
+    border-radius: 25px;
+    background-color: #f0f0f0;
+    border: 2px solid #ff4500;
+    overflow: hidden;
+}
+
+.role-toggle .toggle-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: transparent;
+    color: #ff4500;
+    transition: color 0.3s, background-color 0.3s;
+    text-align: center;
+}
+
+.role-toggle .toggle-btn.active {
+    color: white;
+    background-color: #ff4500;
+    border: 2px solid #ff4500;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    background-color: #ff4500;
+    border-radius: 25px;
+    transition: transform 0.3s ease;
+    z-index: 0;
+}
+
+.role-toggle .toggle-btn:first-child.active ~ .toggle-slider {
+    transform: translateX(0);
+}
+
+.role-toggle .toggle-btn:last-child.active ~ .toggle-slider {
+    transform: translateX(100%);
+}
+
+body.dark .role-toggle {
+    background-color: #333;
+    border-color: #ff4500;
+}
+
+body.dark .toggle-slider {
+    background-color: #ff4500;
+}
+
+body.dark .role-toggle .toggle-btn {
+    color: #f5f5f5;
+}
+
+body.dark .role-toggle .toggle-btn.active {
+    color: #121212;
+    border-color: #ff4500;
+}
+
+/* Mobile and Small Screen Support */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea,
+    button {
+        font-size: 14px;
+    }
+
+    .role-toggle {
+        flex-direction: column;
+    }
+
+    .role-toggle .toggle-btn {
+        width: 100%;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Set Up Your Profile</h1>
+        <form action="/submitSeekerProfile" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">About You</label>
+                <textarea id="bio" name="bio" rows="4" required placeholder="Tell something about yourself"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="photos">Upload Photos</label>
+                <input type="file" id="photos" name="photos" accept="image/*" multiple required>
+                <small>Select up to 5 images for your profile.</small>
+            </div>
+
+            <button type="submit">Save Profile</button>
+        </form>
+    </div>
+</body>
+</html>
+
