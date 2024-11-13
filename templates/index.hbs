@@ -287,196 +287,145 @@ h1 {
             <button id="accept-btn" class="swipe-btn accept accept-btn"><i class="fa-solid fa-check"></i></button>
         </div>
     </div>
+
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-    const jobCardContainer = document.getElementById("job-card-container");
-    const rejectBtn = document.getElementById("reject-btn");
-    const acceptBtn = document.getElementById("accept-btn");
+    document.addEventListener("DOMContentLoaded", () => {
+        const jobCardContainer = document.getElementById("job-card-container");
+        const rejectBtn = document.getElementById("reject-btn");
+        const acceptBtn = document.getElementById("accept-btn");
+        
+        let currentJobIndex = 0;
+        let jobOffers = [];
 
-    // Extended job offers data
-    const jobOffers = [
-        {
-            title: "Software Engineer",
-            company: "Microsoft",
-            description: "Develop and maintain software applications.",
-            logo: "microsoft.svg",
-            salary: "$80,000 - $100,000",
-            duration: "Full-time",
-            skills: ["JavaScript", "React", "Node.js"]
-        },
-        {
-            title: "Product Manager",
-            company: "Google",
-            description: "Lead the product development lifecycle.",
-            logo: "google.svg",
-            salary: "$90,000 - $120,000",
-            duration: "Full-time",
-            skills: ["Agile", "Scrum", "Leadership"]
-        },
-        {
-            title: "UX Designer",
-            company: "Uber",
-            description: "Create intuitive user interfaces and experiences.",
-            logo: "uber.svg",
-            salary: "$70,000 - $90,000",
-            duration: "Part-time",
-            skills: ["Adobe XD", "Figma", "Sketch"]
-        },
-        {
-            title: "Financial Analyst",
-            company: "Goldman Sachs",
-            description: "Analyze financial data to provide investment recommendations.",
-            logo: "goldman.svg",
-            salary: "$95,000 - $130,000",
-            duration: "Full-time",
-            skills: ["Excel", "Financial Modeling", "Market Analysis"]
-        },
-        {
-            title: "Marketing Manager",
-            company: "Meta",
-            description: "Develop and execute marketing strategies to drive brand growth.",
-            logo: "meta.svg",
-            salary: "$110,000 - $140,000",
-            duration: "Full-time",
-            skills: ["Digital Marketing", "SEO", "Content Creation"]
-        },
-        {
-            title: "Operations Coordinator",
-            company: "Netflix",
-            description: "Manage day-to-day operations and coordinate with various departments.",
-            logo: "netflix.svg",
-            salary: "$80,000 - $100,000",
-            duration: "Full-time",
-            skills: ["Project Management", "Communication", "Logistics"]
-        },
-        {
-            title: "HR Specialist",
-            company: "Amazon",
-            description: "Handle recruitment, employee relations, and HR policies.",
-            logo: "amazon.svg",
-            salary: "$75,000 - $95,000",
-            duration: "Full-time",
-            skills: ["Recruitment", "Employee Relations", "HR Management"]
-        },
-        {
-            title: "Consultant",
-            company: "PwC",
-            description: "Provide expert advice on various business challenges.",
-            logo: "pwc.svg",
-            salary: "$120,000 - $150,000",
-            duration: "Full-time",
-            skills: ["Consulting", "Strategic Planning", "Client Management"]
-        },
-        {
-            title: "Audit Associate",
-            company: "KPMG",
-            description: "Perform audits and ensure compliance with financial regulations.",
-            logo: "kpmg.svg",
-            salary: "$70,000 - $90,000",
-            duration: "Full-time",
-            skills: ["Audit Procedures", "Compliance", "Financial Reporting"]
-        },
-        {
-            title: "Business Analyst",
-            company: "Deloitte",
-            description: "Analyze business processes and suggest improvements.",
-            logo: "deloitte.svg",
-            salary: "$85,000 - $105,000",
-            duration: "Full-time",
-            skills: ["Business Analysis", "Data Interpretation", "Problem-Solving"]
+        const url = 'https://linkedin-data-api.p.rapidapi.com/search-jobs-v2?keywords=golang&locationId=100811329&datePosted=anyTime&sort=mostRelevant';
+const options = {
+	method: 'GET',
+	headers: {
+		'x-rapidapi-key': 'fab0deb9e0msh4f63a913e611a57p17bb78jsna79b65d66a55',
+		'x-rapidapi-host': 'linkedin-data-api.p.rapidapi.com'
+	}
+};
+
+        // Fetch jobs from LinkedIn API
+        async function fetchJobs() {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+                const data = await response.json();
+                jobOffers = data.data.map(job => ({
+                    title: job.title,
+                    company: job.company.name,
+                    salary: job.salary || "Salary not specified",
+                    duration: job.type || "Not specified",
+                    skills: job.skills || ["Not specified"],
+                    location: job.location,
+                    postDate: job.postDate,
+                    url: job.url
+                }));
+                renderJobCard(jobOffers[currentJobIndex]);
+            } catch (error) {
+                console.error('Fetch error:', error);
+                displayError();
+            }
         }
-        // Add more job offers as needed
-    ];
 
-    let currentJobIndex = 0;
+        // Render job card
+        function renderJobCard(job) {
+            if (!job) {
+                displayEndMessage();
+                return;
+            }
 
-    // Render job card
-    function renderJobCard(job) {
-        jobCardContainer.innerHTML = `
-            <div class="job-card" id="job-card">
-                <img src="${job.logo}" alt="${job.company} Logo">
-                <div class="job-title">${job.title}</div>
-                <div class="company-name">${job.company}</div>
-                <div class="job-description">${job.description}</div>
-                <div class="job-details">
-                    <div class="job-tag job-salary">Salary: ${job.salary}</div>
-                    <div class="job-tag job-duration">Duration: ${job.duration}</div>
-                    <div class="job-tag job-skills">Skills: ${job.skills.join(", ")}</div>
+            jobCardContainer.innerHTML = `
+                <div class="job-card" id="job-card">
+                    <div class="job-title">${job.title}</div>
+                    <div class="company-name">${job.company}</div>
+                    <div class="job-details">
+                        <div class="job-tag job-salary">Salary: ${job.salary}</div>
+                        <div class="job-tag job-duration">Type: ${job.duration}</div>
+                        <div class="job-tag">Location: ${job.location}</div>
+                        <div class="job-tag">Posted: ${job.postDate}</div>
+                        <a href="${job.url}" target="_blank" class="job-tag">View on LinkedIn</a>
+                    </div>
+                    <div class="swipe-indicator like">LIKE</div>
+                    <div class="swipe-indicator dislike">NOPE</div>
                 </div>
-                <div class="swipe-indicator like">LIKE</div>
-                <div class="swipe-indicator dislike">NOPE</div>
-            </div>
-        `;
-    }
-    
-    renderJobCard(jobOffers[currentJobIndex]);
-
-    // Swipe left to reject a job
-    function rejectJob() {
-        const jobCard = document.getElementById("job-card");
-        jobCard.style.transform = "translateX(-1000px)";
-        setTimeout(() => {
-            jobCard.remove();
-            currentJobIndex++;
-            if (currentJobIndex < jobOffers.length) {
-                renderJobCard(jobOffers[currentJobIndex]);
-            } else {
-                displayEndMessage();
-            }
-        }, 300);
-    }
-
-    // Swipe right to accept a job
-    function acceptJob() {
-        const jobCard = document.getElementById("job-card");
-        jobCard.style.transform = "translateX(1000px)";
-        setTimeout(() => {
-            jobCard.remove();
-            currentJobIndex++;
-            if (currentJobIndex < jobOffers.length) {
-                renderJobCard(jobOffers[currentJobIndex]);
-            } else {
-                displayEndMessage();
-            }
-        }, 300);
-    }
-
-    // Event listeners for buttons
-    rejectBtn.addEventListener("click", rejectJob);
-    acceptBtn.addEventListener("click", acceptJob);
-
-    // Display message when all job offers are swiped
-    function displayEndMessage() {
-        jobCardContainer.innerHTML = `
-            <div class="end-message">
-                <h2>No more job offers</h2>
-                <p>You've swiped through all available job offers. Check back later for more opportunities!</p>
-            </div>
-        `;
-    }
-});
-
-function logout() {
-    fetch("/logout", {
-        method: "GET",
-        credentials: "same-origin" // Ensures session management
-    }).then(response => {
-        if (response.ok) {
-            // Redirect to the login page upon successful logout
-            window.location.href = "/loginpage";
-        } else {
-            console.error("Logout failed");
+            `;
         }
-    }).catch(error => {
-        console.error("Logout error:", error);
+
+        function displayError() {
+            jobCardContainer.innerHTML = `
+                <div class="job-card" id="job-card">
+                    <div class="job-title">Error</div>
+                    <div class="job-description">Unable to fetch job listings. Please try again later.</div>
+                </div>
+            `;
+        }
+
+        // Swipe left to reject a job
+        function rejectJob() {
+            const jobCard = document.getElementById("job-card");
+            jobCard.style.transform = "translateX(-1000px)";
+            setTimeout(() => {
+                jobCard.remove();
+                currentJobIndex++;
+                if (currentJobIndex < jobOffers.length) {
+                    renderJobCard(jobOffers[currentJobIndex]);
+                } else {
+                    displayEndMessage();
+                }
+            }, 300);
+        }
+
+        // Swipe right to accept a job
+        function acceptJob() {
+            const jobCard = document.getElementById("job-card");
+            jobCard.style.transform = "translateX(1000px)";
+            setTimeout(() => {
+                jobCard.remove();
+                currentJobIndex++;
+                if (currentJobIndex < jobOffers.length) {
+                    renderJobCard(jobOffers[currentJobIndex]);
+                } else {
+                    displayEndMessage();
+                }
+            }, 300);
+        }
+
+        // Display message when all job offers are swiped
+        function displayEndMessage() {
+            jobCardContainer.innerHTML = `
+                <div class="end-message">
+                    <h2>No more job offers</h2>
+                    <p>You've swiped through all available job offers. Check back later for more opportunities!</p>
+                </div>
+            `;
+        }
+
+        // Event listeners for buttons
+        rejectBtn.addEventListener("click", rejectJob);
+        acceptBtn.addEventListener("click", acceptJob);
+
+        // Initial fetch of jobs when page loads
+        fetchJobs();
     });
-}
 
-document.addEventListener("DOMContentLoaded", () => {
-    const logoutBtn = document.getElementById("logout-btn");
-    logoutBtn.addEventListener("click", logout);
-});
-
+    function logout() {
+        fetch("/logout", {
+            method: "GET",
+            credentials: "same-origin"
+        }).then(response => {
+            if (response.ok) {
+                window.location.href = "/loginpage";
+            } else {
+                console.error("Logout failed");
+            }
+        }).catch(error => {
+            console.error("Logout error:", error);
+        });
+    }
     </script>
 </body>
 </html>

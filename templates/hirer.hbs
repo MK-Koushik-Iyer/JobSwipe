@@ -3,679 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobSwipe - Recruiter View</title>
-    <link rel="stylesheet" href="styles.css">
-    {{!-- <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> --}}
+    <title>JobSwipe - Talent Browser</title>
     <style>
-        * Global Styles */
-html{
-    background: linear-gradient(135deg, #ffefd5 0%, #ffb84d 100%);
-}
-body {
-    font-family: 'Roboto', sans-serif;
-    /* background-color: #f0f2f5; */
-    background: linear-gradient(135deg, #ffefd5 0%, #ffb84d 100%);
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+        html {
+            background: linear-gradient(135deg, #ffefd5 0%, #ffb84d 100%);
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #ffefd5 0%, #ffb84d 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-.app-container {
-    width: 350px;
-    text-align: center;
-}
+        .app-container {
+            width: 350px;
+            text-align: center;
+            position: relative;
+        }
 
-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-}
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
 
-.logo {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-}
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
 
-h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #333;
-}
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
 
-/* Job Card Styles */
-.job-card-container {
-    position: relative;
-    width: 88%;
-    height: 500px;
-    perspective: 1000px;
-    overflow: visible; /* Ensure that swipe indicators can be shown outside the card */
-}
+        .candidate-card-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            perspective: 1000px;
+        }
 
-.job-card {
-    width: 100%;
-    height: 100%;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
-    position: absolute;
-    transition: transform 0.3s ease-in-out;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    overflow: visible; /* Make sure the swipe indicators can overflow the card */
-    justify-content: space-evenly;
-}
+        .candidate-card {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            transition: transform 0.3s ease-in-out;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-.job-card img {
-    /* width: 120px;
-    height: 120px;  */
-    max-height: 80%;
-    max-width: 80%;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    align-self: center; /* Center the logo horizontally */
-}
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto;
+            object-fit: cover;
+            border: 3px solid #ffb84d;
+        }
 
+        .candidate-name {
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+        }
 
-.job-title {
-    font-size: 20px;
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 5px; /* Reduced space */
-}
+        .candidate-title {
+            font-size: 18px;
+            color: #666;
+        }
 
-.company-name {
-    font-size: 16px;
-    color: #777;
-    margin-bottom: 10px; /* Increased space */
-}
+        .candidate-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+            margin-top: 10px;
+        }
 
-.job-description {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 10px; /* Increased space */
-}
+        .detail-item {
+            background-color: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
 
-.job-details {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 5px; /* Space between tags */
-    margin-bottom: 20px; /* Increased space below details */
-}
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
 
-.job-tag {
-    background-color: #e0e0e0;
-    color: #333;
-    border-radius: 15px;
-    padding: 5px 10px;
-    font-size: 14px;
-    font-weight: 500;
-    display: inline-block;
-    text-align: center;
-}
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 10px;
+        }
 
-.job-salary {
-    background-color: #d0f4c0; /* Light green */
-    border: 1px solid #b2df9f;
-}
+        .swipe-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
 
-.job-duration {
-    background-color: #c1e4ff; /* Light blue */
-    border: 1px solid #a1c4f5;
-}
+        .reject-btn {
+            background-color: #dc3545;
+        }
 
-.job-skills {
-    background-color: #ffd8d8; /* Light red */
-    border: 1px solid #f5a1a1;
-}
+        .accept-btn {
+            background-color: #28a745;
+        }
 
-.swipe-indicator {
-    position: absolute;
-    top: 50%;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    font-weight: bold;
-    font-size: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s;
-    transform: translateY(-50%);
-    z-index: 1; /* Ensure that indicators appear on top of the card */
-}
+        .swipe-btn:hover {
+            transform: scale(1.1);
+        }
 
-.swipe-indicator.like {
-    left: -50px; /* Move to the left outside the card */
-    color: #4caf50;
-    border: 3px solid #4caf50;
-}
+        .swipe-btn:active {
+            transform: scale(0.9);
+        }
 
-.swipe-indicator.dislike {
-    right: -50px; /* Move to the right outside the card */
-    color: #f44336;
-    border: 3px solid #f44336;
-}
+        .end-message {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
 
-/* Action Buttons Styles */
-.action-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 60px; /* Reduced space above action buttons */
-}
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
 
-.swipe-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: #fff;
-    border: 2px solid #ddd;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: transform 0.2s;
-}
+        .error {
+            color: #dc3545;
+            padding: 20px;
+            text-align: center;
+        }
 
-.swipe-btn i {
-    color: #fff;
-    font-size: 24px;
-    transition: color 0.2s;
-}
+        #refresh-btn {
+            background-color: #ffb84d;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
 
-.swipe-btn:active {
-    transform: scale(0.9);
-}
-
-/* Accept Button Styles */
-.accept-btn {
-    background-color: #4caf50; /* Green background */
-    border: 2px solid #4caf50;
-}
-
-.accept-btn:hover {
-    background-color: #43a047; /* Darker green on hover */
-    border: 2px solid #43a047;
-}
-
-/* Reject Button Styles */
-.reject-btn {
-    background-color: #f44336; /* Red background */
-    border: 2px solid #f44336;
-}
-
-.reject-btn:hover {
-    background-color: #e53935; /* Darker red on hover */
-    border: 2px solid #e53935;
-}
-
-/* Toggle Button Styles */
-.toggle-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: linear-gradient(135deg, #ffefd5 0%, #ffb84d 100%);
-    color: grey;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.toggle-btn:hover {
-    background-color: #0056b3; /* Darker Blue on hover */
-}
-
-.toggle-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Focus ring */
-}
-
-.toggle-btn:active {
-    transform: scale(0.95); /* Slight scale on click */
-}
-
-/* Responsive Design */
-@media (max-width: 400px) {
-    .app-container {
-        width: 100%;
-        padding: 10px;
-    }
-
-    .job-card {
-        padding: 15px;
-    }
-
-    .job-title {
-        font-size: 18px;
-    }
-
-    .company-name {
-        font-size: 14px;
-    }
-
-    .job-description {
-        font-size: 13px;
-    }
-
-    .job-tag {
-        font-size: 12px;
-        padding: 4px 8px;
-    }
-
-    .swipe-indicator.like,
-    .swipe-indicator.dislike {
-        width: 80px;
-        height: 80px;
-        font-size: 20px;
-    }
-    .toggle-btn {
-        top: 10px;
-        right: 10px;
-        padding: 8px 15px;
-        font-size: 12px;
-    }
-    .logout-btn {
-    background-color: #ff4d4d; /* Light red color */
-    position: relative;
-    top:65px;
-    left: 125%;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-    margin-left: auto; /* Move to the right */
-}
-
-.logout-btn:hover {
-    background-color: #e60000; /* Darker red on hover */
-}
-}
+        #refresh-btn:hover {
+            background-color: #ffa726;
+        }
     </style>
-    {{!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- FontAwesome Link --> --}}
 </head>
 <body>
     <div class="app-container">
-        <button id="logout-btn" class="logout-btn" onclick="logout()">Logout</button>
         <header>
-            <img src="/logo.svg" alt="SwipeForTalent Logo" class="logo">
+            <img src="images/logo.png" alt="JobSwipe Logo" class="logo"> <!-- Updated logo source -->
             <h1>JobSwipe</h1>
         </header>
         
-        <div id="candidate-card-container" class="job-card-container">
-            <!-- Candidate Cards will be inserted here dynamically -->
+        <div id="candidate-card-container" class="candidate-card-container">
+            <!-- Cards will be inserted here dynamically -->
+            <div class="loading">Loading candidates...</div>
         </div>
         
         <div class="action-buttons">
-            <button id="reject-btn" class="swipe-btn reject reject-btn"><i class="fa-solid fa-xmark"></i></button>
-            <button id="accept-btn" class="swipe-btn accept accept-btn"><i class="fa-solid fa-check"></i></button>
+            <button id="reject-btn" class="swipe-btn reject-btn">✕</button>
+            <button id="accept-btn" class="swipe-btn accept-btn">✓</button>
         </div>
-        
-        <!-- Toggle Button -->
-        {{!-- <button id="toggle-btn" class="toggle-btn">Switch to Job Seeker View</button> --}}
     </div>
-    
-    {{!-- <script src="app.js"></script> --}}
+
     <script>
-        {{!-- const toggleBtn = document.getElementById('toggle-btn'); --}}
-        
+        class CandidateSwiper {
+            constructor() {
+                this.container = document.getElementById('candidate-card-container');
+                this.rejectBtn = document.getElementById('reject-btn');
+                this.acceptBtn = document.getElementById('accept-btn');
+                this.candidates = [];
+                this.currentIndex = 0;
 
-        document.addEventListener("DOMContentLoaded", () => {
-    const jobCardContainer = document.getElementById("job-card-container");
-    const rejectBtn = document.getElementById("reject-btn");
-    const acceptBtn = document.getElementById("accept-btn");
+                this.bindEvents();
+                this.fetchCandidates();
+            }
 
-    // Extended job offers data
-    const jobOffers = [
-        {
-            title: "Software Engineer",
-            company: "Microsoft",
-            description: "Develop and maintain software applications.",
-            logo: "microsoft.svg",
-            salary: "$80,000 - $100,000",
-            duration: "Full-time",
-            skills: ["JavaScript", "React", "Node.js"]
-        },
-        {
-            title: "Product Manager",
-            company: "Google",
-            description: "Lead the product development lifecycle.",
-            logo: "google.svg",
-            salary: "$90,000 - $120,000",
-            duration: "Full-time",
-            skills: ["Agile", "Scrum", "Leadership"]
-        },
-        {
-            title: "UX Designer",
-            company: "Uber",
-            description: "Create intuitive user interfaces and experiences.",
-            logo: "uber.svg",
-            salary: "$70,000 - $90,000",
-            duration: "Part-time",
-            skills: ["Adobe XD", "Figma", "Sketch"]
-        },
-        {
-            title: "Financial Analyst",
-            company: "Goldman Sachs",
-            description: "Analyze financial data to provide investment recommendations.",
-            logo: "goldman.svg",
-            salary: "$95,000 - $130,000",
-            duration: "Full-time",
-            skills: ["Excel", "Financial Modeling", "Market Analysis"]
-        },
-        {
-            title: "Marketing Manager",
-            company: "Meta",
-            description: "Develop and execute marketing strategies to drive brand growth.",
-            logo: "meta.svg",
-            salary: "$110,000 - $140,000",
-            duration: "Full-time",
-            skills: ["Digital Marketing", "SEO", "Content Creation"]
-        },
-        {
-            title: "Operations Coordinator",
-            company: "Netflix",
-            description: "Manage day-to-day operations and coordinate with various departments.",
-            logo: "netflix.svg",
-            salary: "$80,000 - $100,000",
-            duration: "Full-time",
-            skills: ["Project Management", "Communication", "Logistics"]
-        },
-        {
-            title: "HR Specialist",
-            company: "Amazon",
-            description: "Handle recruitment, employee relations, and HR policies.",
-            logo: "amazon.svg",
-            salary: "$75,000 - $95,000",
-            duration: "Full-time",
-            skills: ["Recruitment", "Employee Relations", "HR Management"]
-        },
-        {
-            title: "Consultant",
-            company: "PwC",
-            description: "Provide expert advice on various business challenges.",
-            logo: "pwc.svg",
-            salary: "$120,000 - $150,000",
-            duration: "Full-time",
-            skills: ["Consulting", "Strategic Planning", "Client Management"]
-        },
-        {
-            title: "Audit Associate",
-            company: "KPMG",
-            description: "Perform audits and ensure compliance with financial regulations.",
-            logo: "kpmg.svg",
-            salary: "$70,000 - $90,000",
-            duration: "Full-time",
-            skills: ["Audit Procedures", "Compliance", "Financial Reporting"]
-        },
-        {
-            title: "Business Analyst",
-            company: "Deloitte",
-            description: "Analyze business processes and suggest improvements.",
-            logo: "deloitte.svg",
-            salary: "$85,000 - $105,000",
-            duration: "Full-time",
-            skills: ["Business Analysis", "Data Interpretation", "Problem-Solving"]
+            async fetchCandidates() {
+                try {
+                    const response = await fetch('https://dummyjson.com/users');
+                    if (!response.ok) throw new Error('Failed to fetch candidates');
+                    
+                    const data = await response.json();
+                    this.candidates = data.users;
+                    
+                    if (this.candidates.length > 0) {
+                        this.renderCard(this.candidates[0]);
+                    } else {
+                        this.showEndMessage();
+                    }
+                } catch (error) {
+                    this.showError(error.message);
+                }
+            }
+
+            renderCard(candidate) {
+                const card = document.createElement('div');
+                card.className = 'candidate-card';
+                card.id = 'current-card';
+                
+                card.innerHTML = `
+                    <img src="${candidate.image}" alt="${candidate.firstName}" class="profile-image">
+                    <div class="candidate-name">${candidate.firstName} ${candidate.lastName}</div>
+                    <div class="candidate-title">${candidate.company.title}</div>
+                    <div class="candidate-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Email:</span> ${candidate.email}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Location:</span> ${candidate.address.city}, ${candidate.address.state}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Department:</span> ${candidate.company.department}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">University:</span> ${candidate.university}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Skills:</span> ${candidate.company.department} Expert
+                        </div>
+                    </div>
+                `;
+
+                this.container.innerHTML = '';
+                this.container.appendChild(card);
+            }
+
+            showEndMessage() {
+                this.container.innerHTML = `
+                    <div class="end-message">
+                        <h2>No more candidates</h2>
+                        <p>You've reviewed all available candidates.</p>
+                        <button id="refresh-btn" onclick="location.reload()">Start Over</button>
+                    </div>
+                `;
+            }
+
+            showError(message) {
+                this.container.innerHTML = `
+                    <div class="error">
+                        <p>Error: ${message}</p>
+                        <button id="refresh-btn" onclick="location.reload()">Try Again</button>
+                    </div>
+                `;
+            }
+
+            bindEvents() {
+                this.rejectBtn.addEventListener('click', () => this.handleSwipe('left'));
+                this.acceptBtn.addEventListener('click', () => this.handleSwipe('right'));
+            }
+
+            handleSwipe(direction) {
+                const card = document.getElementById('current-card');
+                if (!card) return;
+
+                const transform = direction === 'left' ? -1000 : 1000;
+                card.style.transform = `translateX(${transform}px)`; // corrected syntax
+
+                setTimeout(() => {
+                    this.currentIndex++;
+                    if (this.currentIndex < this.candidates.length) {
+                        this.renderCard(this.candidates[this.currentIndex]);
+                    } else {
+                        this.showEndMessage();
+                    }
+                }, 300);
+            }
         }
-        // Add more job offers as needed
-    ];
 
-    let currentJobIndex = 0;
-
-    // Render job card
-    function renderJobCard(job) {
-        jobCardContainer.innerHTML = `
-            <div class="job-card" id="job-card">
-                <img src="${job.logo}" alt="${job.company} Logo">
-                <div class="job-title">${job.title}</div>
-                <div class="company-name">${job.company}</div>
-                <div class="job-description">${job.description}</div>
-                <div class="job-details">
-                    <div class="job-tag job-salary">Salary: ${job.salary}</div>
-                    <div class="job-tag job-duration">Duration: ${job.duration}</div>
-                    <div class="job-tag job-skills">Skills: ${job.skills.join(", ")}</div>
-                </div>
-                <div class="swipe-indicator like">LIKE</div>
-                <div class="swipe-indicator dislike">NOPE</div>
-            </div>
-        `;
-    }
-    
-    renderJobCard(jobOffers[currentJobIndex]);
-
-    // Swipe left to reject a job
-    function rejectJob() {
-        const jobCard = document.getElementById("job-card");
-        jobCard.style.transform = "translateX(-1000px)";
-        setTimeout(() => {
-            jobCard.remove();
-            currentJobIndex++;
-            if (currentJobIndex < jobOffers.length) {
-                renderJobCard(jobOffers[currentJobIndex]);
-            } else {
-                displayEndMessage();
-            }
-        }, 300);
-    }
-
-    // Swipe right to accept a job
-    function acceptJob() {
-        const jobCard = document.getElementById("job-card");
-        jobCard.style.transform = "translateX(1000px)";
-        setTimeout(() => {
-            jobCard.remove();
-            currentJobIndex++;
-            if (currentJobIndex < jobOffers.length) {
-                renderJobCard(jobOffers[currentJobIndex]);
-            } else {
-                displayEndMessage();
-            }
-        }, 300);
-    }
-
-    // Event listeners for buttons
-    rejectBtn.addEventListener("click", rejectJob);
-    acceptBtn.addEventListener("click", acceptJob);
-
-    // Display message when all job offers are swiped
-    function displayEndMessage() {
-        jobCardContainer.innerHTML = `
-            <div class="end-message">
-                <h2>No more job offers</h2>
-                <p>You've swiped through all available job offers. Check back later for more opportunities!</p>
-            </div>
-        `;
-    }
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-    const candidateCardContainer = document.getElementById("candidate-card-container");
-    const rejectBtn = document.getElementById("reject-btn");
-    const acceptBtn = document.getElementById("accept-btn");
-
-    // Extended candidate data
-    const candidates = [
-        {
-            name: "John Doe",
-            position: "Software Engineer",
-            profilePic: "john_doe.jpg",
-            experience: "5 years at Microsoft",
-            skills: ["JavaScript", "React", "Node.js"],
-            expectedSalary: "$90,000 - $110,000"
-        },
-        {
-            name: "Jane Smith",
-            position: "UX Designer",
-            profilePic: "jane_smith.jpg",
-            experience: "3 years at Uber",
-            skills: ["Figma", "Sketch", "UI/UX Design"],
-            expectedSalary: "$70,000 - $90,000"
-        },
-        {
-            name: "Alex Johnson",
-            position: "Product Manager",
-            profilePic: "alex_johnson.jpg",
-            experience: "6 years at Google",
-            skills: ["Agile", "Scrum", "Leadership"],
-            expectedSalary: "$120,000 - $140,000"
-        },
-        {
-            name: "Emily Carter",
-            position: "Marketing Manager",
-            profilePic: "emily_carter.jpg",
-            experience: "4 years at Meta",
-            skills: ["Digital Marketing", "SEO", "Content Creation"],
-            expectedSalary: "$100,000 - $130,000"
-        },
-        {
-            name: "Michael Brown",
-            position: "Operations Coordinator",
-            profilePic: "michael_brown.jpg",
-            experience: "5 years at Netflix",
-            skills: ["Project Management", "Communication", "Logistics"],
-            expectedSalary: "$80,000 - $100,000"
-        },
-        {
-            name: "Sarah Lee",
-            position: "HR Specialist",
-            profilePic: "sarah_lee.jpg",
-            experience: "6 years at Amazon",
-            skills: ["Recruitment", "Employee Relations", "HR Management"],
-            expectedSalary: "$85,000 - $105,000"
-        },
-        {
-            name: "David Wilson",
-            position: "Consultant",
-            profilePic: "david_wilson.jpg",
-            experience: "8 years at PwC",
-            skills: ["Consulting", "Strategic Planning", "Client Management"],
-            expectedSalary: "$130,000 - $160,000"
-        },
-        {
-            name: "Jessica Turner",
-            position: "Audit Associate",
-            profilePic: "jessica_turner.jpg",
-            experience: "3 years at KPMG",
-            skills: ["Audit Procedures", "Compliance", "Financial Reporting"],
-            expectedSalary: "$75,000 - $95,000"
-        },
-        {
-            name: "Chris Evans",
-            position: "Business Analyst",
-            profilePic: "chris_evans.jpg",
-            experience: "4 years at Deloitte",
-            skills: ["Business Analysis", "Data Interpretation", "Problem-Solving"],
-            expectedSalary: "$85,000 - $105,000"
-        },
-        {
-            name: "Laura Phillips",
-            position: "Financial Analyst",
-            profilePic: "laura_phillips.jpg",
-            experience: "7 years at Goldman Sachs",
-            skills: ["Financial Modeling", "Market Analysis", "Excel"],
-            expectedSalary: "$100,000 - $130,000"
-        }
-    ];
-
-    let currentCandidateIndex = 0;
-
-    // Render candidate card
-    function renderCandidateCard(candidate) {
-        candidateCardContainer.innerHTML = `
-            <div class="job-card" id="candidate-card">
-                <img src="${candidate.profilePic}" alt="${candidate.name} Picture">
-                <div class="job-title">${candidate.name}</div>
-                <div class="company-name">${candidate.position}</div>
-                <div class="job-description">${candidate.experience}</div>
-                <div class="job-details">
-                    <div class="job-tag job-skills">Skills: ${candidate.skills.join(", ")}</div>
-                    <div class="job-tag job-salary">Expected Salary: ${candidate.expectedSalary}</div>
-                </div>
-                <div class="swipe-indicator like">HIRE</div>
-                <div class="swipe-indicator dislike">NOPE</div>
-            </div>
-        `;
-    }
-
-    renderCandidateCard(candidates[currentCandidateIndex]);
-
-    // Swipe left to reject a candidate
-    function rejectCandidate() {
-        const candidateCard = document.getElementById("candidate-card");
-        candidateCard.style.transform = "translateX(-1000px)";
-        setTimeout(() => {
-            candidateCard.remove();
-            currentCandidateIndex++;
-            if (currentCandidateIndex < candidates.length) {
-                renderCandidateCard(candidates[currentCandidateIndex]);
-            } else {
-                displayEndMessage();
-            }
-        }, 300);
-    }
-
-    // Swipe right to accept a candidate
-    function acceptCandidate() {
-        const candidateCard = document.getElementById("candidate-card");
-        candidateCard.style.transform = "translateX(1000px)";
-        setTimeout(() => {
-            candidateCard.remove();
-            currentCandidateIndex++;
-            if (currentCandidateIndex < candidates.length) {
-                renderCandidateCard(candidates[currentCandidateIndex]);
-            } else {
-                displayEndMessage();
-            }
-        }, 300);
-    }
-
-    // Event listeners for buttons
-    rejectBtn.addEventListener("click", rejectCandidate);
-    acceptBtn.addEventListener("click", acceptCandidate);
-
-    // Display message when all candidates are swiped
-    function displayEndMessage() {
-        candidateCardContainer.innerHTML = `
-            <div class="end-message">
-                <h2>No more candidates</h2>
-                <p>You've swiped through all available candidates. Check back later for more potential hires!</p>
-            </div>
-        `;
-    }
-});
-
-
-    function logout() {
-    fetch("/logout", {
-        method: "GET",
-        credentials: "same-origin" // Ensures session management
-    }).then(response => {
-        if (response.ok) {
-            // Redirect to the login page upon successful logout
-            window.location.href = "/loginpage";
-        } else {
-            console.error("Logout failed");
-        }
-    }).catch(error => {
-        console.error("Logout error:", error);
-    });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    const logoutBtn = document.getElementById("logout-btn");
-    logoutBtn.addEventListener("click", logout);
-});
+        // Initialize the app when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new CandidateSwiper();
+        });
     </script>
 </body>
+
 </html>

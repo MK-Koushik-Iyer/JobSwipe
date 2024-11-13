@@ -1,19 +1,20 @@
 const express = require("express");
-const session = require("express-session");
-const bcrypt = require("bcryptjs");
+const expressSession = require('express-session');
+const app = express();
+const multer = require("multer");
 const path = require("path");
 const hbs = require("hbs");
+const bcrypt = require('bcrypt');
+const session = require('express-session');
+const { User, JobPosting } = require("../src/mongodb"); // Updated import
 
-const { User, JobPosting } = require("../src/mongodb"); // Updated import from a separate models file
-
-const app = express();
-const PORT = 8080;
-
-// Template path setup
 const templatePath = path.join(__dirname, "../templates");
-app.use(express.static('public'));
 
 // Middleware setup
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
@@ -21,15 +22,6 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
-app.use((req, res, next) => {
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
-  next();
-});
-
-const helmet = require('helmet');
-app.use(helmet.contentSecurityPolicy({
-  // ...
 }));
 
 // Static file serving
@@ -52,50 +44,111 @@ const authenticateUser = (req, res, next) => {
   if (req.session.userId) {
     next();
   } else {
-    res.redirect("/loginpage");
+    res.redirect('/loginpage');
   }
 };
 
-// Routes
-app.get("/", (req, res) => res.redirect("/loginpage"));
-app.get("/loginpage", (req, res) => res.render("loginpage"));
-app.get("/signup", (req, res) => res.render("signup"));
-app.get("/forgot-password", (req, res) => res.render("forgot-password"));
 app.get('/signuphirer', (req, res) => { res.render('signuphirer'); });
 app.get('/profilesetupseeker', (req, res) => { res.render('profilesetupseeker'); });
 
-// Updated signup route with role-based redirection
+// Routes
+app.get("/loginpage", (req, res) => {
+  res.render("loginpage");
+});
+
+app.get("/signup", (req, res) => {
+  res.render("signup");
+});
+
+app.get("/forgot-password", (req, res) => {
+  res.render("forgot-password");
+});
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../public/uploads')); // Make sure this folder exists
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit for each file
+  fileFilter: (req, file, cb) => {
+    // Only accept image files
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed"), false);
+    }
+    cb(null, true);
+  }
+});
+
+// In server.js - Updated signup handler
+// In server.js - Fixed signup handler
 app.post("/signup", async (req, res) => {
   try {
     const { fname, lname, email, password, role } = req.body;
 
     // Input validation
     if (!fname || !lname || !email || !password || !role) {
-      return res.render('signup', { error: 'Please fill all required fields' });
+      return res.render('signup', {
+        error: 'Please fill all required fields'
+      });
     }
 
     // Validate role
     if (role !== 'seeker' && role !== 'hirer') {
-      return res.render('signup', { error: 'Invalid role selected' });
+      return res.render('signup', {
+        error: 'Invalid role selected'
+      });
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.render('signup', { error: 'Email already registered' });
+      return res.render('signup', {
+        error: 'Email already registered'
+      });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create base user object
-    const userData = { fname, lname, email, password: hashedPassword, role, createdAt: new Date(), profileComplete: false };
+    const userData = {
+      fname,
+      lname,
+      email,
+      password: hashedPassword,
+      role,
+      createdAt: new Date(),
+      profileComplete: false
+    };
 
     // Add role-specific empty profile structure
     if (role === 'hirer') {
-      userData.hirerProfile = { companyName: '', industry: '', companySize: '', companyDescription: '', website: '' };
+      userData.hirerProfile = {
+        companyName: '',
+        industry: '',
+        companySize: '',
+        companyDescription: '',
+        website: ''
+      };
     } else {
-      userData.seekerProfile = { title: '', experience: 0, skills: [], education: [], expectedSalary: { min: 0, max: 0, currency: 'USD' } };
+      userData.seekerProfile = {
+        title: '',
+        experience: 0,
+        skills: [],
+        education: [],
+        expectedSalary: {
+          min: 0,
+          max: 0,
+          currency: 'USD'
+        }
+      };
     }
 
     // Create new user
@@ -106,13 +159,153 @@ app.post("/signup", async (req, res) => {
     req.session.userId = newUser._id;
     req.session.userRole = role;
 
-    // Redirect to specific setup page based on role
-    res.redirect(role === 'hirer' ? '/signuphirer' : '/profilesetupseeker');
+    // Redirect based on role
+    if (role === 'hirer') {
+      res.redirect('/signuphirer');
+    } else {
+      res.redirect('/profilesetupseeker');
+    }
+
   } catch (error) {
     console.error('Signup error:', error);
-    res.render('signup', { error: 'Error creating account. Please try again.' });
+    res.render('signup', {
+      error: 'Error creating account. Please try again.'
+    });
   }
 });
+
+app.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+    // Send a response that triggers client-side redirect
+    res.status(200).send(`
+      <script>
+        localStorage.clear(); // Clear any stored data
+        sessionStorage.clear();
+        window.location.href = '/loginpage';
+      </script>
+    `);
+  });
+});
+
+
+// POST route to complete hirer profile after signup
+app.post('/submitHirerProfile', upload.fields([
+  { name: 'companyLogo', maxCount: 1 },
+  { name: 'photos', maxCount: 5 }
+]), async (req, res) => {
+  try {
+    const user = await User.findById(req.session.userId);
+    
+    // Ensure the user exists and has the role of "hirer"
+    if (!user || user.role !== 'hirer') {
+      return res.status(403).send('Unauthorized');
+    }
+
+    // Capture uploaded file paths
+    const companyLogoPath = req.files['companyLogo'] ? req.files['companyLogo'][0].path : '';
+    const photosPaths = req.files['photos'] ? req.files['photos'].map(file => file.path) : [];
+
+    // Update hirer-specific profile details from the request body
+    user.hirerProfile = {
+      companyName: req.body.companyName,
+      companyDescription: req.body.companyBio,
+      companyLogo: companyLogoPath,
+      additionalPhotos: photosPaths
+    };
+    user.profileComplete = true; // Mark profile as complete
+    await user.save(); // Save the updates to the database
+
+    // Redirect to the hirer's dashboard or another relevant page
+    res.redirect('/hirer');
+  } catch (error) {
+    console.error('Error updating hirer profile:', error);
+    res.render('signuphirer', {
+      error: 'Could not update profile. Please try again.'
+    });
+  }
+});
+
+app.post('/submitSeekerProfile', upload.array('photos', 5), async (req, res) => {
+  try {
+    const user = await User.findById(req.session.userId);
+
+    // Ensure the user exists and has the role of "seeker"
+    if (!user || user.role !== 'seeker') {
+      return res.status(403).send('Unauthorized');
+    }
+
+    // Capture uploaded file paths
+    const photosPaths = req.files ? req.files.map(file => file.path) : [];
+
+    // Update seeker-specific profile details from the request body
+    user.seekerProfile = {
+      fullName: req.body.name,
+      bio: req.body.bio,
+      photos: photosPaths
+    };
+    user.profileComplete = true; // Mark profile as complete
+    await user.save(); // Save the updates to the database
+
+    // Redirect to the seeker's dashboard or another relevant page
+    res.redirect('/index');
+  } catch (error) {
+    console.error('Error updating seeker profile:', error);
+    res.render('profilesetupseeker', {
+      error: 'Could not save profile. Please try again.'
+    });
+  } 
+});
+
+
+
+// Signup handler with role selection and password hashing
+// app.post("/signup", async (req, res) => {
+//   try {
+//     const { fname, lname, email, password, role } = req.body;
+
+//     // Input validation
+//     if (!fname || !lname || !email || !password) {
+//       return res.status(400).render('signup', {
+//         error: 'Please fill all required fields'
+//       });
+//     }
+
+//     // Check if user already exists
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).render('signup', {
+//         error: 'Email already registered'
+//       });
+//     }
+
+//     // Hash password
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     // Create new user
+//     const newUser = new User({
+//       fname,
+//       lname,
+//       email,
+//       password: hashedPassword,
+//       role: role || 'seeker',
+//       createdAt: new Date(),
+//       profileComplete: false
+//     });
+
+//     await newUser.save();
+
+//     res.redirect('/loginpage');
+//   } catch (error) {
+//     console.error('Signup error:', error);
+//     res.status(500).render('signup', {
+//       error: 'Error creating account. Please try again.'
+//     });
+//   }
+// }); 
 
 // Login handler with role-based routing
 app.post("/loginpage", async (req, res) => {
@@ -120,80 +313,131 @@ app.post("/loginpage", async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.render("loginpage", { error: "Invalid email or password" });
+    if (!user) {
+      return res.status(401).render('loginpage', {
+        error: 'Invalid email or password'
+      });
     }
 
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).render('loginpage', {
+        error: 'Invalid email or password'
+      });
+    }
+
+    // Set session
     req.session.userId = user._id;
     req.session.userRole = user.role;
-    await user.updateLastActive();
 
-    res.redirect(user.role === "hirer" ? "/index" : "/hirer");
+    // Update last active
+    user.lastActive = new Date();
+    await user.save();
+
+    // Redirect based on role
+    if (user.role === 'hirer') {
+      res.redirect('/hirer');
+    } else {
+      res.redirect('/index');
+    }
   } catch (error) {
-    console.error("Login error:", error);
-    res.render("loginpage", { error: "Error logging in. Please try again." });
+    console.error('Login error:', error);
+    res.status(500).render('loginpage', {
+      error: 'Error logging in. Please try again.'
+    });
   }
 });
 
-// Hirer Dashboard Route
+// Protected routes
 app.get("/hirer", authenticateUser, async (req, res) => {
   try {
     const user = await User.findById(req.session.userId);
-    if (!user || user.role !== "hirer") return res.redirect("/index");
+    if (!user || user.role !== 'hirer') {
+      return res.redirect('/index');
+    }
 
-    const postedJobs = await JobPosting.find({ hirer: user._id }).sort({ createdAt: -1 });
-    res.render("hirer", { user, postedJobs, companyInfo: user.hirerProfile || {} });
+    // Get posted jobs for this hirer
+    const postedJobs = await JobPosting.find({ hirer: user._id })
+                                     .sort({ createdAt: -1 });
+
+    res.render("hirer", { 
+      user,
+      postedJobs,
+      companyInfo: user.hirerProfile || {}
+    });
   } catch (error) {
-    console.error("Hirer dashboard error:", error);
-    res.redirect("/loginpage");
+    console.error('Hirer dashboard error:', error);
+    res.redirect('/loginpage');
   }
 });
 
-// Seeker Dashboard Route
 app.get("/index", authenticateUser, async (req, res) => {
   try {
     const user = await User.findById(req.session.userId);
-    if (!user) return res.redirect("/loginpage");
+    if (!user) {
+      return res.redirect('/loginpage');
+    }
 
-    const jobs = await JobPosting.find({ status: "active" }).sort({ createdAt: -1 }).limit(10);
-    res.render("index", { user, jobs, seekerProfile: user.seekerProfile || {} });
+    // Get active job postings
+    const jobs = await JobPosting.find({ status: 'active' })
+                                .sort({ createdAt: -1 })
+                                .limit(10);
+
+    res.render("index", { 
+      user,
+      jobs,
+      seekerProfile: user.seekerProfile || {}
+    });
   } catch (error) {
-    console.error("Index page error:", error);
-    res.redirect("/loginpage");
+    console.error('Index page error:', error);
+    res.redirect('/loginpage');
   }
 });
 
-// Job Posting
+// Job posting routes
 app.post("/post-job", authenticateUser, async (req, res) => {
   try {
     const user = await User.findById(req.session.userId);
-    if (!user || user.role !== "hirer") return res.status(403).send("Unauthorized");
+    if (!user || user.role !== 'hirer') {
+      return res.status(403).send('Unauthorized');
+    }
 
     const newJob = new JobPosting({
       hirer: user._id,
       title: req.body.title,
       description: req.body.description,
-      requirements: req.body.requirements.split(",").map(r => r.trim()),
+      requirements: req.body.requirements.split(',').map(r => r.trim()),
       location: req.body.location,
       type: req.body.type,
-      salary: { min: req.body.salaryMin, max: req.body.salaryMax, currency: req.body.currency || "USD" },
-      skills: req.body.skills.split(",").map(s => s.trim()),
-      status: "active"
+      salary: {
+        min: req.body.salaryMin,
+        max: req.body.salaryMax,
+        currency: req.body.currency || 'USD'
+      },
+      skills: req.body.skills.split(',').map(s => s.trim()),
+      status: 'active'
     });
 
     await newJob.save();
-    res.redirect("/hirer");
+    res.redirect('/hirer');
   } catch (error) {
-    console.error("Job posting error:", error);
-    res.redirect("/hirer");
+    console.error('Job posting error:', error);
+    res.redirect('/hirer');
   }
 });
 
-// Profile Update Routes
+app.get("/", (req, res)=>
+{
+  res.redirect("/loginpage");
+});
+
+// Profile update routes
 app.post("/update-hirer-profile", authenticateUser, async (req, res) => {
   try {
     const user = await User.findById(req.session.userId);
-    if (!user || user.role !== "hirer") return res.status(403).send("Unauthorized");
+    if (!user || user.role !== 'hirer') {
+      return res.status(403).send('Unauthorized');
+    }
 
     user.hirerProfile = {
       companyName: req.body.companyName,
@@ -205,53 +449,83 @@ app.post("/update-hirer-profile", authenticateUser, async (req, res) => {
     user.profileComplete = true;
     await user.save();
 
-    res.redirect("/hirer");
+    res.redirect('/hirer');
   } catch (error) {
-    console.error("Profile update error:", error);
-    res.redirect("/hirer");
+    console.error('Profile update error:', error);
+    res.redirect('/hirer');
   }
 });
 
 app.post("/update-seeker-profile", authenticateUser, async (req, res) => {
   try {
     const user = await User.findById(req.session.userId);
-    if (!user || user.role !== "seeker") return res.status(403).send("Unauthorized");
+    if (!user || user.role !== 'seeker') {
+      return res.status(403).send('Unauthorized');
+    }
 
     user.seekerProfile = {
       title: req.body.title,
       experience: parseInt(req.body.experience),
-      skills: req.body.skills.split(",").map(s => s.trim()),
-      education: [{ degree: req.body.degree, institution: req.body.institution, year: parseInt(req.body.graduationYear) }],
-      expectedSalary: { min: parseInt(req.body.expectedSalaryMin), max: parseInt(req.body.expectedSalaryMax), currency: req.body.currency || "USD" }
+      skills: req.body.skills.split(',').map(s => s.trim()),
+      education: [{
+        degree: req.body.degree,
+        institution: req.body.institution,
+        year: parseInt(req.body.graduationYear)
+      }],
+      expectedSalary: {
+        min: parseInt(req.body.expectedSalaryMin),
+        max: parseInt(req.body.expectedSalaryMax),
+        currency: req.body.currency || 'USD'
+      }
     };
     user.profileComplete = true;
     await user.save();
 
-    res.redirect("/index");
+    res.redirect('/index');
   } catch (error) {
-    console.error("Profile update error:", error);
-    res.redirect("/index");
+    console.error('Profile update error:', error);
+    res.redirect('/index');
   }
 });
 
-// Logout
+// Logout route
 app.get("/logout", (req, res) => {
-  req.session.destroy(err => {
-    if (err) console.error("Logout error:", err);
-    res.redirect("/loginpage");
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+    }
+    res.redirect('/loginpage');
   });
 });
 
-// Toggle Role
-app.post("/toggle-role", (req, res) => {
-  const { role } = req.body;
-  if (role !== "job_seeker" && role !== "hirer") return res.status(400).send("Invalid role");
 
+app.post('/toggle-role', (req, res) => {
+  const { role } = req.body;
+
+  // Validate role
+  if (role !== 'job_seeker' && role !== 'hirer') {
+    return res.status(400).send('Invalid role');
+  }
+
+  // Update role in session or database
   req.session.role = role;
-  res.send("Role toggled successfully");
+
+  res.send('Role toggled successfully');
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server listening at http://localhost:${PORT}`);
+
+app.use(expressSession({
+  secret: 'your-secret',
+  resave: false,
+  saveUninitialized: true
+}));
+
+app.post('/toggle-role', (req, res) => {
+  const { role } = req.body;
+  req.session.role = role;
+  res.send('Role toggled successfully');
+});
+
+app.listen(8080, () => {
+  console.log("Server listening at 8080");
 });
